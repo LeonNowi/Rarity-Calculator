@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rarity Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 20px;
+            padding: 0;
+        }
+        
+        .calculator {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #1e1e1e;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px black;
+        }
+        
+        h1 {
+            color: #bb86fc;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .item-group {
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #252525;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        
+        .common { border-color: #b0b0b0; }
+        .rare { border-color: #4fc3f7; }
+        .epic { border-color: #ba68c8; }
+        .legendary { border-color: #ffa726; }
+        
+        .item-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .common-label { color: #b0b0b0; }
+        .rare-label { color: #4fc3f7; }
+        .epic-label { color: #ba68c8; }
+        .legendary-label { color: #ffa726; }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .input-group {
+            flex: 1;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: white;
+            text-align: right;
+        }
+        
+        .total {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #3700b3;
+            text-align: center;
+            font-size: 1.2em;
+            border-radius: 5px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #3700b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #4a1ac9;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Rarity Calculator</h1>
+        
+        <!-- Common -->
+        <div class="item-group common">
+            <span class="item-label common-label">Common</span>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" id="common-price" placeholder="Price" oninput="formatNumber(this)">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="common-qty" placeholder="Quantity" oninput="formatNumber(this)">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rare -->
+        <div class="item-group rare">
+            <span class="item-label rare-label">Rare</span>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" id="rare-price" placeholder="Price" oninput="formatNumber(this)">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="rare-qty" placeholder="Quantity" oninput="formatNumber(this)">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Epic -->
+        <div class="item-group epic">
+            <span class="item-label epic-label">Epic</span>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" id="epic-price" placeholder="Price" oninput="formatNumber(this)">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="epic-qty" placeholder="Quantity" oninput="formatNumber(this)">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legendary -->
+        <div class="item-group legendary">
+            <span class="item-label legendary-label">Legendary</span>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" id="legendary-price" placeholder="Price" oninput="formatNumber(this)">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="legendary-qty" placeholder="Quantity" oninput="formatNumber(this)">
+                </div>
+            </div>
+        </div>
+        
+        <div class="total">
+            Total: <span id="total">0</span> $
+        </div>
+        
+        <button onclick="savePrices()">Save Prices</button>
+    </div>
+
+    <script>
+        // Zahlenformatierung
+        function formatNumber(input) {
+            let cursorPos = input.selectionStart;
+            let val = input.value.replace(/[^\d]/g, '');
+            
+            if (val === '') {
+                input.value = '';
+                calculateTotal();
+                return;
+            }
+            
+            let num = parseInt(val);
+            input.value = num.toLocaleString('de-DE');
+            
+            let newPos = cursorPos + (input.value.length - val.length);
+            input.setSelectionRange(newPos, newPos);
+            
+            calculateTotal();
+        }
+
+        // Umwandlung für Berechnungen
+        function parseNumber(str) {
+            return parseInt(str.replace(/\./g, '')) || 0;
+        }
+
+        // Total berechnen
+        function calculateTotal() {
+            let total = 0;
+            
+            ['common', 'rare', 'epic', 'legendary'].forEach(id => {
+                let price = parseNumber(document.getElementById(id + '-price').value);
+                let qty = parseNumber(document.getElementById(id + '-qty').value);
+                total += price * qty;
+            });
+            
+            document.getElementById('total').textContent = total.toLocaleString('de-DE');
+        }
+
+        // Preise speichern
+        function savePrices() {
+            let prices = {
+                common: document.getElementById('common-price').value,
+                rare: document.getElementById('rare-price').value,
+                epic: document.getElementById('epic-price').value,
+                legendary: document.getElementById('legendary-price').value
+            };
+            localStorage.setItem('prices', JSON.stringify(prices));
+            alert('Prices saved!');
+        }
+
+        // Beim Laden
+        window.onload = function() {
+            let saved = JSON.parse(localStorage.getItem('prices'));
+            if (saved) {
+                document.getElementById('common-price').value = saved.common || '';
+                document.getElementById('rare-price').value = saved.rare || '';
+                document.getElementById('epic-price').value = saved.epic || '';
+                document.getElementById('legendary-price').value = saved.legendary || '';
+            }
+            calculateTotal();
+        };
+    </script>
+</body>
+</html>
